@@ -1,25 +1,22 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
-	"time"
+  "strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/truongnhatanh7/goTodoBE/common"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 type TodoItem struct {
-	Id          int        `json:"id" gorm:"column:id;"`
+  common.SQLModel
 	Title       string     `json:"title" gorm:"column:title;"`
 	Description string     `json:"description" gorm:"column:description;"`
 	Status      string     `json:"status" gorm:"column:status;"`
-	CreatedAt   *time.Time `json:"created_at" gorm:"column:created_at;"`
-	UpdatedAt   *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at;"`
 }
 
 func (TodoItem) TableName() string { return "todo_items" }
@@ -40,28 +37,7 @@ type TodoItemUpdate struct {
 
 func (TodoItemUpdate) TableName() string { return TodoItem{}.TableName() }
 
-type Paging struct {
-	Page  int   `json:"page" form:"page"`
-	Limit int   `json:"limit" form:"limit"`
-	Total int64 `json:"total" form:"-"`
-}
-
-func (p *Paging) Process() {
-	if p.Page < 1 {
-		p.Page = 1
-	}
-
-	if p.Limit <= 1 {
-		p.Limit = 1
-	}
-
-	if p.Limit >= 100 {
-		p.Limit = 100
-	}
-}
-
 func main() {
-
 	dsn := os.Getenv("DB_CONN")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
@@ -70,24 +46,6 @@ func main() {
 	}
 
 	log.Println(db)
-
-	now := time.Now().UTC()
-	item := TodoItem{
-		Id:          1,
-		Title:       "Task 1",
-		Description: "Content 1",
-		Status:      "Doing",
-		CreatedAt:   &now,
-		UpdatedAt:   nil,
-	}
-
-	jsData, err := json.Marshal(item)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	log.Println(string(jsData))
 
 	r := gin.Default()
 	v1 := r.Group("/v1")
@@ -127,9 +85,7 @@ func CreateItem(db *gorm.DB) func(ctx *gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"data": itemData,
-		})
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(itemData.Id))
 	}
 }
 
@@ -156,9 +112,7 @@ func GetItem(db *gorm.DB) func(ctx *gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"data": itemData,
-		})
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(itemData))
 	}
 }
 
@@ -194,9 +148,7 @@ func UpdateItem(db *gorm.DB) func(ctx *gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"data": true,
-		})
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))
 	}
 }
 
@@ -226,16 +178,14 @@ func DeleteItem(db *gorm.DB) func(ctx *gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"data": true,
-		})
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))
 	}
 }
 
 func ListItem(db *gorm.DB) func(ctx *gin.Context) {
 	return func(c *gin.Context) {
-    // Paging
-		var paging Paging
+		// Paging
+		var paging common.Paging
 		if err := c.ShouldBind(&paging); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
@@ -244,9 +194,9 @@ func ListItem(db *gorm.DB) func(ctx *gin.Context) {
 			return
 		}
 
-    paging.Process()
+		paging.Process()
 
-    //DB
+		//DB
 		var result []TodoItem
 
 		db = db.Table(TodoItem{}.TableName()).Where("status <> ?", "Deleted")
@@ -260,10 +210,10 @@ func ListItem(db *gorm.DB) func(ctx *gin.Context) {
 		}
 
 		res := db.
-      Select("*").
+			Select("*").
 			Offset((paging.Page - 1) * paging.Limit).
 			Limit(paging.Limit).
-      Find(&result)
+			Find(&result)
 
 		if res.Error != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -273,9 +223,6 @@ func ListItem(db *gorm.DB) func(ctx *gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"data":   result,
-			"paging": paging,
-		})
+		c.JSON(http.StatusOK, common.NewSuccessResponse(result, paging, nil))
 	}
 }
