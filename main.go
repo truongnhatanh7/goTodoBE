@@ -234,6 +234,7 @@ func DeleteItem(db *gorm.DB) func(ctx *gin.Context) {
 
 func ListItem(db *gorm.DB) func(ctx *gin.Context) {
 	return func(c *gin.Context) {
+    // Paging
 		var paging Paging
 		if err := c.ShouldBind(&paging); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -243,12 +244,27 @@ func ListItem(db *gorm.DB) func(ctx *gin.Context) {
 			return
 		}
 
+    paging.Process()
+
+    //DB
 		var result []TodoItem
 
-		res := db.Table(TodoItem{}.TableName()).Find(&result).
-			Count(&paging.Total).
+		db = db.Table(TodoItem{}.TableName()).Where("status <> ?", "Deleted")
+
+		if err := db.Select("id").Count(&paging.Total).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+
+			return
+		}
+
+		res := db.
+      Select("*").
 			Offset((paging.Page - 1) * paging.Limit).
-			Limit(paging.Limit)
+			Limit(paging.Limit).
+      Find(&result)
+
 		if res.Error != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": res.Error.Error(),
