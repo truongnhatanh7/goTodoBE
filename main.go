@@ -4,38 +4,15 @@ import (
 	"log"
 	"net/http"
 	"os"
-  "strconv"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/truongnhatanh7/goTodoBE/common"
+	"github.com/truongnhatanh7/goTodoBE/module/item/model"
+	ginitem "github.com/truongnhatanh7/goTodoBE/module/item/transport/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
-
-type TodoItem struct {
-  common.SQLModel
-	Title       string     `json:"title" gorm:"column:title;"`
-	Description string     `json:"description" gorm:"column:description;"`
-	Status      string     `json:"status" gorm:"column:status;"`
-}
-
-func (TodoItem) TableName() string { return "todo_items" }
-
-type TodoItemCreation struct {
-	Id          int    `json:"id" gorm:"column:id;"`
-	Title       string `json:"title" gorm:"column:title;"`
-	Description string `json:"description" gorm:"column:description;"`
-}
-
-func (TodoItemCreation) TableName() string { return TodoItem{}.TableName() }
-
-type TodoItemUpdate struct {
-	Title       *string `json:"title" gorm:"column:title;"`
-	Description *string `json:"description" gorm:"column:description;"`
-	Status      *string `json:"status" gorm:"column:status;"`
-}
-
-func (TodoItemUpdate) TableName() string { return TodoItem{}.TableName() }
 
 func main() {
 	dsn := os.Getenv("DB_CONN")
@@ -52,7 +29,7 @@ func main() {
 	{
 		items := v1.Group("/items")
 		{
-			items.POST("", CreateItem(db))
+			items.POST("", ginitem.CreateItem(db))
 			items.GET("", ListItem(db))
 			items.GET("/:id", GetItem(db))
 			items.PATCH("/:id", UpdateItem(db))
@@ -64,34 +41,10 @@ func main() {
 
 }
 
-func CreateItem(db *gorm.DB) func(ctx *gin.Context) {
-	return func(c *gin.Context) {
-		var itemData TodoItemCreation
-
-		if err := c.ShouldBind(&itemData); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		res := db.Create(&itemData)
-		if res.Error != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": res.Error.Error(),
-			})
-
-			return
-		}
-
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(itemData.Id))
-	}
-}
 
 func GetItem(db *gorm.DB) func(ctx *gin.Context) {
 	return func(c *gin.Context) {
-		var itemData TodoItemCreation
+		var itemData model.TodoItemCreation
 
 		id, err := strconv.Atoi(c.Param("id"))
 
@@ -129,7 +82,7 @@ func UpdateItem(db *gorm.DB) func(ctx *gin.Context) {
 			return
 		}
 
-		var updateData TodoItemUpdate
+		var updateData model.TodoItemUpdate
 
 		if err := c.ShouldBind(&updateData); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -167,7 +120,7 @@ func DeleteItem(db *gorm.DB) func(ctx *gin.Context) {
 
 		deletedStatus := "Deleted"
 
-		res := db.Table(TodoItem{}.TableName()).Where("id = ?", id).Updates(&TodoItemUpdate{
+		res := db.Table(model.TodoItem{}.TableName()).Where("id = ?", id).Updates(&model.TodoItemUpdate{
 			Status: &deletedStatus,
 		})
 		if res.Error != nil {
@@ -197,9 +150,9 @@ func ListItem(db *gorm.DB) func(ctx *gin.Context) {
 		paging.Process()
 
 		//DB
-		var result []TodoItem
+		var result []model.TodoItem
 
-		db = db.Table(TodoItem{}.TableName()).Where("status <> ?", "Deleted")
+		db = db.Table(model.TodoItem{}.TableName()).Where("status <> ?", "Deleted")
 
 		if err := db.Select("id").Count(&paging.Total).Error; err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
