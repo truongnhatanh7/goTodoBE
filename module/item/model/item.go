@@ -8,14 +8,15 @@ import (
 )
 
 var (
-  ErrTitleCannotBeEmpty = errors.New("Title cannot be empty")
+	ErrTitleCannotBeEmpty = errors.New("Title cannot be empty")
+	ErrItemIsDeleted      = errors.New("Item is deleted")
 )
 
 type TodoItem struct {
-  common.SQLModel
-	Title       string     `json:"title" gorm:"column:title;"`
-	Description string     `json:"description" gorm:"column:description;"`
-	Status      string     `json:"status" gorm:"column:status;"`
+	common.SQLModel
+	Title       string `json:"title" gorm:"column:title;"`
+	Description string `json:"description" gorm:"column:description;"`
+	Status      string `json:"status" gorm:"column:status;"`
 }
 
 func (TodoItem) TableName() string { return "todo_items" }
@@ -29,12 +30,12 @@ type TodoItemCreation struct {
 func (TodoItemCreation) TableName() string { return TodoItem{}.TableName() }
 
 func (i *TodoItemCreation) Validate() error {
-  i.Title = strings.TrimSpace(i.Title)
-  if i.Title == "" {
-    return ErrTitleCannotBeEmpty
-  }
+	i.Title = strings.TrimSpace(i.Title)
+	if i.Title == "" {
+		return ErrTitleCannotBeEmpty
+	}
 
-  return nil
+	return nil
 }
 
 type TodoItemUpdate struct {
@@ -44,3 +45,12 @@ type TodoItemUpdate struct {
 }
 
 func (TodoItemUpdate) TableName() string { return TodoItem{}.TableName() }
+
+func (i *TodoItemUpdate) Validate() error {
+	*i.Title = strings.TrimSpace(*i.Title)
+	if *i.Title == "" {
+		return ErrTitleCannotBeEmpty
+	}
+
+	return nil
+}
