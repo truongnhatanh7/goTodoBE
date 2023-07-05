@@ -16,6 +16,7 @@ type createItemBiz struct {
   store CreateItemStorage
 }
 
+// Any Storage has to implement CreateItem
 func NewCreateItemBiz(store CreateItemStorage) *createItemBiz {
   return &createItemBiz{store: store}
 }

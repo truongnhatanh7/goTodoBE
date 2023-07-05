@@ -31,7 +31,7 @@ func main() {
 		{
 			items.POST("", ginitem.CreateItem(db))
 			items.GET("", ListItem(db))
-			items.GET("/:id", GetItem(db))
+			items.GET("/:id", ginitem.GetItem(db))
 			items.PATCH("/:id", UpdateItem(db))
 			items.DELETE("/:id", DeleteItem(db))
 		}
@@ -39,34 +39,6 @@ func main() {
 
 	r.Run(":3000")
 
-}
-
-
-func GetItem(db *gorm.DB) func(ctx *gin.Context) {
-	return func(c *gin.Context) {
-		var itemData model.TodoItemCreation
-
-		id, err := strconv.Atoi(c.Param("id"))
-
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		res := db.Where("id = ?", id).First(&itemData)
-		if res.Error != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": res.Error.Error(),
-			})
-
-			return
-		}
-
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(itemData))
-	}
 }
 
 func UpdateItem(db *gorm.DB) func(ctx *gin.Context) {
