@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/truongnhatanh7/goTodoBE/middleware"
 	ginitem "github.com/truongnhatanh7/goTodoBE/module/item/transport/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -21,6 +22,8 @@ func main() {
 	log.Println(db)
 
 	r := gin.Default()
+	r.Use(middleware.Recover())
+
 	v1 := r.Group("/v1")
 	{
 		items := v1.Group("/items")
