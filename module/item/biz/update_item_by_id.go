@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 
+	"github.com/truongnhatanh7/goTodoBE/common"
 	"github.com/truongnhatanh7/goTodoBE/module/item/model"
 )
 
@@ -22,7 +23,7 @@ func NewUpdateItemBiz(store UpdateItemStorage) *updateItem {
 func (biz *updateItem) UpdateItemById(ctx context.Context, id int, dataUpdate *model.TodoItemUpdate) error {
 	data, err := biz.store.GetItem(ctx, map[string]interface{}{"id": id})
 	if err != nil {
-		return err
+		return common.ErrCannotGetEntity(model.EntityName, err)
 	}
 
 	if data.Status == "Deleted" {
@@ -30,7 +31,7 @@ func (biz *updateItem) UpdateItemById(ctx context.Context, id int, dataUpdate *m
 	}
 
 	if err := biz.store.UpdateItem(ctx, map[string]interface{}{"id":id}, dataUpdate); err != nil {
-		return err
+		return common.ErrCannotUpdateEntity(model.EntityName, err)
 	}
 
 	return nil

@@ -27,7 +27,7 @@ func (s *sqlStore) ListItem(
 
 	// Count total items first
 	if err := db.Select("id").Table(model.TodoItem{}.TableName()).Count(&paging.Total).Error; err != nil {
-		return nil, err
+		return nil, common.ErrDB(err)
 	}
 
 	// Then execute paging
@@ -37,7 +37,7 @@ func (s *sqlStore) ListItem(
 		Offset((paging.Page - 1) * paging.Limit).
 		Limit(paging.Limit).
 		Find(&result).Error; err != nil {
-		return nil, err
+		return nil, common.ErrDB(err)
 	}
 
 	return result, nil
