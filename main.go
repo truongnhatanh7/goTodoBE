@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/truongnhatanh7/goTodoBE/common"
@@ -33,42 +32,12 @@ func main() {
 			items.GET("", ListItem(db))
 			items.GET("/:id", ginitem.GetItem(db))
 			items.PATCH("/:id", ginitem.UpdateItem(db))
-			items.DELETE("/:id", DeleteItem(db))
+			items.DELETE("/:id", ginitem.DeleteItem(db))
 		}
 	}
 
 	r.Run(":3000")
 
-}
-
-func DeleteItem(db *gorm.DB) func(ctx *gin.Context) {
-	return func(c *gin.Context) {
-
-		id, err := strconv.Atoi(c.Param("id"))
-
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-
-			return
-		}
-
-		deletedStatus := "Deleted"
-
-		res := db.Table(model.TodoItem{}.TableName()).Where("id = ?", id).Updates(&model.TodoItemUpdate{
-			Status: &deletedStatus,
-		})
-		if res.Error != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": res.Error.Error(),
-			})
-
-			return
-		}
-
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))
-	}
 }
 
 func ListItem(db *gorm.DB) func(ctx *gin.Context) {
