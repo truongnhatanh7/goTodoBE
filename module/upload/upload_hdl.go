@@ -17,9 +17,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// NOTE: this handler is very simple and please do not use it in practice
-// Instead, I recommend you should check "Upload Image to AWS S3 and CDN with CloudFront"
-
 func Upload(db *gorm.DB, provider *uploadprovider.S3Provider) func(ctx *gin.Context) {
 	return func(c *gin.Context) {
 		fileHeader, err := c.FormFile("file")
