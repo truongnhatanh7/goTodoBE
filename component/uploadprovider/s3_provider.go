@@ -2,7 +2,6 @@ package uploadprovider
 
 import (
 	"bytes"
-	"context"
 
 	"fmt"
 	"log"
@@ -15,7 +14,7 @@ import (
 	"github.com/truongnhatanh7/goTodoBE/common"
 )
 
-type s3Provider struct {
+type S3Provider struct {
 	bucketName string
 	region     string
 	apiKey     string
@@ -24,8 +23,8 @@ type s3Provider struct {
 	session    *session.Session
 }
 
-func NewS3Provider(bucketName string, region string, apiKey string, secret string, domain string) *s3Provider {
-	provider := &s3Provider{
+func NewS3Provider(bucketName string, region string, apiKey string, secret string, domain string) *S3Provider {
+	provider := &S3Provider{
 		bucketName: bucketName,
 		region:     region,
 		apiKey:     apiKey,
@@ -50,7 +49,7 @@ func NewS3Provider(bucketName string, region string, apiKey string, secret strin
 	return provider
 }
 
-func (provider *s3Provider) SaveFileUploaded(ctx context.Context, data []byte, dst string) (*common.Image, error) {
+func (provider *S3Provider) SaveFileUploaded(data []byte, dst string) (*common.Image, error) {
 	fileBytes := bytes.NewReader(data)
 	fileType := http.DetectContentType(data)
 

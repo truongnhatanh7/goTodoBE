@@ -12,9 +12,9 @@
 - Update todo item
 - Get todo item
 - Soft delete todo item
+- Upload images to AWS S3 Bucket with CDN
 ## Todo
 - JWT Auth
-- Upload images to cloud (AWS)
 - Rate limit
 - Security
 - Docker
