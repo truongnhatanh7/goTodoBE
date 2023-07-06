@@ -19,7 +19,7 @@ type Image struct {
 func (Image) TableName() string { return "images" }
 
 func (j *Image) Fulfill(domain string) {
-	j.Url = fmt.Sprintf("%s/%s", domain, j.Url)
+	j.Url = fmt.Sprintf("%s%s", domain, j.Url)
 }
 
 func (j *Image) Scan(value interface{}) error {

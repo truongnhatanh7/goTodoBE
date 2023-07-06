@@ -30,7 +30,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	log.Println(db)
+	// log.Println(db)
 
 	r := gin.Default()
 	r.Use(middleware.Recover())
