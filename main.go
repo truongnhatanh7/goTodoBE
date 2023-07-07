@@ -10,6 +10,7 @@ import (
 	"github.com/truongnhatanh7/goTodoBE/middleware"
 	ginitem "github.com/truongnhatanh7/goTodoBE/module/item/transport/gin"
 	"github.com/truongnhatanh7/goTodoBE/module/upload"
+	ginuser "github.com/truongnhatanh7/goTodoBE/module/user/transport/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -30,8 +31,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// log.Println(db)
-
 	r := gin.Default()
 	r.Use(middleware.Recover())
 
@@ -40,6 +39,8 @@ func main() {
 	v1 := r.Group("/v1")
 	{
 		v1.PUT("/upload", upload.Upload(db, s3Provider))
+
+		v1.POST("/register", ginuser.Register(db))
 
 		items := v1.Group("/items")
 		{
