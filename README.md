@@ -17,6 +17,7 @@
 - Register User
 - Login User
 - Protect routes (auth required)
+- Role protection
 ## Todo
 - Rate limit
 - Security
