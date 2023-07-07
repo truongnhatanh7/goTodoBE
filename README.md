@@ -5,7 +5,7 @@
 - Error standardization
 - Recover middleware
 - Static files serving
-- MySQL Db
+- MySQL DB
 - List todo items
 - Filter todo items
 - Paging query for list todo items
@@ -13,8 +13,10 @@
 - Get todo item
 - Soft delete todo item
 - Upload images to AWS S3 Bucket with CDN
+- JWT Authentication
+- Register User
+- Login User
 ## Todo
-- JWT Auth
 - Rate limit
 - Security
 - Docker

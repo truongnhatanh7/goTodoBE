@@ -6,10 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/truongnhatanh7/goTodoBE/component/tokenprovider/jwt"
 	"github.com/truongnhatanh7/goTodoBE/component/uploadprovider"
 	"github.com/truongnhatanh7/goTodoBE/middleware"
 	ginitem "github.com/truongnhatanh7/goTodoBE/module/item/transport/gin"
 	"github.com/truongnhatanh7/goTodoBE/module/upload"
+	"github.com/truongnhatanh7/goTodoBE/module/user/storage"
 	ginuser "github.com/truongnhatanh7/goTodoBE/module/user/transport/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -17,6 +19,7 @@ import (
 
 func main() {
 	dsn := os.Getenv("DB_CONN")
+	systemSecret := os.Getenv("SECRET")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	bucketName := os.Getenv("G09BucketName")
@@ -31,6 +34,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	authStore := storage.NewSQLStore(db)
+	tokenProvider := jwt.NewTokenJWTProvider("jwt", systemSecret)
+
 	r := gin.Default()
 	r.Use(middleware.Recover())
 
@@ -41,6 +47,8 @@ func main() {
 		v1.PUT("/upload", upload.Upload(db, s3Provider))
 
 		v1.POST("/register", ginuser.Register(db))
+		v1.POST("/login", ginuser.Login(db, tokenProvider))
+		v1.GET("/profile", middleware.RequiredAuth(authStore, tokenProvider), ginuser.Profile())
 
 		items := v1.Group("/items")
 		{

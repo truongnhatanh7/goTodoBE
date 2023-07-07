@@ -8,6 +8,10 @@ func Recovery() {
   }
 }
 
+const (
+  CurrentUser = "current_user"
+)
+
 type TokenPayload struct {
 	UId   int    `json:"user_id"`
 	URole string `json:"role"`
