@@ -16,6 +16,7 @@
 - JWT Authentication
 - Register User
 - Login User
+- Protect routes (auth required)
 ## Todo
 - Rate limit
 - Security

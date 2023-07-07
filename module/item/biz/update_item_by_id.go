@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"errors"
 
 	"github.com/truongnhatanh7/goTodoBE/common"
 	"github.com/truongnhatanh7/goTodoBE/module/item/model"
@@ -13,11 +14,12 @@ type UpdateItemStorage interface {
 }
 
 type updateItem struct {
-	store UpdateItemStorage
+	store     UpdateItemStorage
+	requester common.Requester
 }
 
-func NewUpdateItemBiz(store UpdateItemStorage) *updateItem {
-	return &updateItem{store: store}
+func NewUpdateItemBiz(store UpdateItemStorage, requester common.Requester) *updateItem {
+	return &updateItem{store: store, requester: requester}
 }
 
 func (biz *updateItem) UpdateItemById(ctx context.Context, id int, dataUpdate *model.TodoItemUpdate) error {
@@ -30,7 +32,13 @@ func (biz *updateItem) UpdateItemById(ctx context.Context, id int, dataUpdate *m
 		return model.ErrItemIsDeleted
 	}
 
-	if err := biz.store.UpdateItem(ctx, map[string]interface{}{"id":id}, dataUpdate); err != nil {
+	isOwner := biz.requester.GetUserId() != data.UserId
+
+	if !isOwner && !common.IsAdmin(biz.requester) {
+		return common.ErrNoPermission(errors.New("no permission"))
+	}
+
+	if err := biz.store.UpdateItem(ctx, map[string]interface{}{"id": id}, dataUpdate); err != nil {
 		return common.ErrCannotUpdateEntity(model.EntityName, err)
 	}
 
