@@ -36,6 +36,7 @@ func main() {
 
 	authStore := storage.NewSQLStore(db)
 	tokenProvider := jwt.NewTokenJWTProvider("jwt", systemSecret)
+	middlewareAuth := middleware.RequiredAuth(authStore, tokenProvider)
 
 	r := gin.Default()
 	r.Use(middleware.Recover())
@@ -48,15 +49,15 @@ func main() {
 
 		v1.POST("/register", ginuser.Register(db))
 		v1.POST("/login", ginuser.Login(db, tokenProvider))
-		v1.GET("/profile", middleware.RequiredAuth(authStore, tokenProvider), ginuser.Profile())
+		v1.GET("/profile", middlewareAuth, ginuser.Profile())
 
 		items := v1.Group("/items")
 		{
-			items.POST("", ginitem.CreateItem(db))
+			items.POST("", middlewareAuth, ginitem.CreateItem(db))
 			items.GET("", ginitem.ListItem(db))
 			items.GET("/:id", ginitem.GetItem(db))
-			items.PATCH("/:id", ginitem.UpdateItem(db))
-			items.DELETE("/:id", ginitem.DeleteItem(db))
+			items.PATCH("/:id", middlewareAuth, ginitem.UpdateItem(db))
+			items.DELETE("/:id", middlewareAuth, ginitem.DeleteItem(db))
 		}
 	}
 
