@@ -30,6 +30,10 @@ func (s *sqlStore) ListItem(
 		return nil, common.ErrDB(err)
 	}
 
+	for i := range moreKeys {
+		db = db.Preload(moreKeys[i])
+	}
+
 	// Then execute paging
 	if err := db.
 		Select("*").

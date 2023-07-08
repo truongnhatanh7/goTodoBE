@@ -44,6 +44,11 @@ func ListItem(db *gorm.DB) func(ctx *gin.Context) {
       return
     }
 
+		for i := range result {
+			result[i].Mask()
+		}
+
+
 		c.JSON(http.StatusOK, common.NewSuccessResponse(result, queryString.Paging, queryString.Filter))
 	}
 }
