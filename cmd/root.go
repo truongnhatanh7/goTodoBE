@@ -77,12 +77,6 @@ var rootCmd = &cobra.Command{
 					items.DELETE("/:id", ginitem.DeleteItem(db))
 				}
 			}
-
-			engine.GET("/ping", func(c *gin.Context) {
-				c.JSON(http.StatusOK, gin.H{
-					"message": "pong",
-				})
-			})
 		})
 
 		if err := service.Start(); err != nil {

@@ -18,6 +18,8 @@
 - Login User
 - Protect routes (auth required)
 - Role protection
+- Get user's profile
+- Encode/Decode ID
 ## Todo
 - Rate limit
 - Security
