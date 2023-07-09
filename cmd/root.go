@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	goservice "github.com/200Lab-Education/go-sdk"
