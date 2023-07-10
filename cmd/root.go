@@ -16,6 +16,7 @@ import (
 	userstorage "github.com/truongnhatanh7/goTodoBE/module/user/storage"
 	ginuser "github.com/truongnhatanh7/goTodoBE/module/user/transport/gin"
 	"github.com/truongnhatanh7/goTodoBE/plugin/sdkgorm"
+	"github.com/truongnhatanh7/goTodoBE/plugin/sdks3"
 	"gorm.io/gorm"
 )
 
@@ -24,6 +25,7 @@ func newService() goservice.Service {
 		goservice.WithName("social-todo-list"),
 		goservice.WithVersion("1.0.0"),
 		goservice.WithInitRunnable(sdkgorm.NewGormDB("main", common.PluginDBMain)),
+		goservice.WithInitRunnable(sdks3.NewS3Service("s3-provider", "aws-s3")),
 	)
 
 	return service
@@ -33,12 +35,6 @@ var rootCmd = &cobra.Command{
 	Use:   "app",
 	Short: "Start social TODO service",
 	Run: func(cmd *cobra.Command, args []string) {
-		bucketName := os.Getenv("G09BucketName")
-		region := os.Getenv("G09Region")
-		apiKey := os.Getenv("G09AccessKey")
-		secret := os.Getenv("G09SecretKey")
-		domain := ""
-
 		systemSecret := os.Getenv("SECRET")
 
 		service := newService()
@@ -54,7 +50,9 @@ var rootCmd = &cobra.Command{
 
 			db := service.MustGet(common.PluginDBMain).(*gorm.DB)
 
-			s3Provider := uploadprovider.NewS3Provider(bucketName, region, apiKey, secret, domain)
+			s3Provider := service.MustGet("aws-s3").(interface{
+				GetBucketProvider() *uploadprovider.S3Provider
+			}).GetBucketProvider()
 			authStore := userstorage.NewSQLStore(db)
 			tokenProvider := jwt.NewTokenJWTProvider("jwt", systemSecret)
 			middlewareAuth := middleware.RequiredAuth(authStore, tokenProvider)

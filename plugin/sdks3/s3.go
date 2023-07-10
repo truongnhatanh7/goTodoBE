@@ -41,11 +41,11 @@ func (s3 *s3Plugin) Name() string {
 }
 
 func (s3 *s3Plugin) InitFlags() {
-	flag.StringVar(&s3.ApiKey, s3.Prefix+"s3-api-key", "", "s3 programmatic user api key")
-	flag.StringVar(&s3.Secret, s3.Prefix+"s3-api-key", "", "s3 secret key")
-	flag.StringVar(&s3.BucketName, s3.Prefix+"s3-bucket-name", "", "s3 bucket name")
-	flag.StringVar(&s3.Region, s3.Prefix+"s3-region", "", "s3 region")
-	flag.StringVar(&s3.Domain, s3.Prefix+"s3-domain", "", "s3 domain")
+	flag.StringVar(&s3.ApiKey, s3.Prefix+"api-key", "", "s3 programmatic user api key")
+	flag.StringVar(&s3.Secret, s3.Prefix+"secret-key", "", "s3 secret key")
+	flag.StringVar(&s3.BucketName, s3.Prefix+"bucket-name", "", "s3 bucket name")
+	flag.StringVar(&s3.Region, s3.Prefix+"region", "", "s3 region")
+	flag.StringVar(&s3.Domain, s3.Prefix+"domain", "", "s3 domain")
 }
 
 func (s3 *s3Plugin) Configure() error {
@@ -56,7 +56,7 @@ func (s3 *s3Plugin) Configure() error {
 		s3.Secret,
 		s3.Domain,
 	)
-	s3.logger.Info("s3 provider is connected")
+	// s3.logger.Info("s3 provider is connected")
 
 	return nil
 }
@@ -73,6 +73,10 @@ func (s3 *s3Plugin) Stop() <-chan bool {
 	return c
 }
 
-func (s3 *s3Plugin) GetBucketProvider() interface{} {
+func (s3 *s3Plugin) Get() interface{} {
+	return s3
+}
+
+func (s3 *s3Plugin) GetBucketProvider() *uploadprovider.S3Provider {
 	return s3.S3provider
 }
