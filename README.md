@@ -2,26 +2,22 @@
 
 ## Features
 - Clean Architecture
-- Error standardization
-- Recover middleware
-- Static files serving
-- MySQL DB
-- List todo items
-- Filter todo items
-- Paging query for list todo items
-- Update todo item
-- Get todo item
-- Soft delete todo item
+- CRUD Todo items
+- User like items
+- Filter/Paging query for list todo items
 - Upload images to AWS S3 Bucket with CDN
 - JWT Authentication
-- Register User
-- Login User
+- Login/Register User
 - Protect routes (auth required)
 - Role protection
 - Get user's profile
 - Encode/Decode ID
 - Cobra CLI Application
 - Env Variables Command: ```./app outenv```
+- Recover middleware
+- MySQL DB
+- Static files serving
+- Error standardization
 ## Todo
 - Rate limit
 - Security

@@ -15,6 +15,7 @@ import (
 	"github.com/truongnhatanh7/goTodoBE/module/upload"
 	userstorage "github.com/truongnhatanh7/goTodoBE/module/user/storage"
 	ginuser "github.com/truongnhatanh7/goTodoBE/module/user/transport/gin"
+	ginuserlikeitem "github.com/truongnhatanh7/goTodoBE/module/userlikeitem/transport/gin"
 	"github.com/truongnhatanh7/goTodoBE/plugin/sdkgorm"
 	"github.com/truongnhatanh7/goTodoBE/plugin/sdks3"
 	"gorm.io/gorm"
@@ -50,7 +51,7 @@ var rootCmd = &cobra.Command{
 
 			db := service.MustGet(common.PluginDBMain).(*gorm.DB)
 
-			s3Provider := service.MustGet("aws-s3").(interface{
+			s3Provider := service.MustGet("aws-s3").(interface {
 				GetBucketProvider() *uploadprovider.S3Provider
 			}).GetBucketProvider()
 			authStore := userstorage.NewSQLStore(db)
@@ -72,6 +73,10 @@ var rootCmd = &cobra.Command{
 					items.GET("/:id", ginitem.GetItem(db))
 					items.PATCH("/:id", ginitem.UpdateItem(db))
 					items.DELETE("/:id", ginitem.DeleteItem(db))
+
+					items.POST("/:id/like", ginuserlikeitem.LikeItem(service))
+					items.DELETE("/:id/unlike", ginuserlikeitem.UnlikeItem(service))
+					items.GET("/:id/liked-users", ginuserlikeitem.ListUserLiked(service))
 				}
 			}
 		})
