@@ -20,6 +20,8 @@
 - Role protection
 - Get user's profile
 - Encode/Decode ID
+- Cobra CLI Application
+- Env Variables Command: ```./app outenv```
 ## Todo
 - Rate limit
 - Security
