@@ -5,6 +5,7 @@
 - CRUD Todo items
 - User like items
 - Filter/Paging query for list todo items
+- Seek Paging technique
 - Upload images to AWS S3 Bucket with CDN
 - JWT Authentication
 - Login/Register User

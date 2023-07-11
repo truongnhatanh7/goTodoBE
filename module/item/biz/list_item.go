@@ -7,7 +7,7 @@ import (
 	"github.com/truongnhatanh7/goTodoBE/module/item/model"
 )
 
-type ListItemStorage interface {
+type ListItemRepo interface {
 	ListItem(
 		ctx context.Context,
 		filter *model.Filter,
@@ -17,12 +17,12 @@ type ListItemStorage interface {
 }
 
 type listItemBiz struct {
-	store     ListItemStorage
+	repo     ListItemRepo
 	requester common.Requester
 }
 
-func NewLIstItemBiz(store ListItemStorage, requester common.Requester) *listItemBiz {
-	return &listItemBiz{store: store, requester: requester}
+func NewLIstItemBiz(repo ListItemRepo, requester common.Requester) *listItemBiz {
+	return &listItemBiz{repo: repo, requester: requester}
 }
 
 func (biz *listItemBiz) ListItem(
@@ -32,7 +32,7 @@ func (biz *listItemBiz) ListItem(
 ) ([]model.TodoItem, error) {
 	ctxStore := context.WithValue(ctx, common.CurrentUser, biz.requester)
 
-	data, err := biz.store.ListItem(ctxStore, filter, paging, "Owner")
+	data, err := biz.repo.ListItem(ctxStore, filter, paging, "Owner")
 
 	if err != nil {
 		return nil, common.ErrCannotListEntity(model.EntityName, err)

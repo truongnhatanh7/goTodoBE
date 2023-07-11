@@ -34,14 +34,30 @@ func (s *sqlStore) ListItem(
 		db = db.Preload(moreKeys[i])
 	}
 
+	if v := paging.FakeCursor; v != "" {
+		uid, err := common.FromBase58(v)
+
+		if err != nil {
+			return nil, common.ErrDB(err)
+		}
+
+		db = db.Where("id < ?", uid.GetLocalID())
+	} else {
+		db = db.Offset((paging.Page - 1) * paging.Limit)
+	}
+
 	// Then execute paging
 	if err := db.
 		Select("*").
 		Order("id desc").
-		Offset((paging.Page - 1) * paging.Limit).
 		Limit(paging.Limit).
 		Find(&result).Error; err != nil {
 		return nil, common.ErrDB(err)
+	}
+
+	if len(result) > 0 {
+		result[len(result) - 1].Mask()
+		paging.NextCursor = result[len(result) - 1].FakeId.String()
 	}
 
 	return result, nil

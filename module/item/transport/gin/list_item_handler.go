@@ -7,7 +7,9 @@ import (
 	"github.com/truongnhatanh7/goTodoBE/common"
 	"github.com/truongnhatanh7/goTodoBE/module/item/biz"
 	"github.com/truongnhatanh7/goTodoBE/module/item/model"
+	"github.com/truongnhatanh7/goTodoBE/module/item/repository"
 	"github.com/truongnhatanh7/goTodoBE/module/item/storage"
+	usrLikeStore "github.com/truongnhatanh7/goTodoBE/module/userlikeitem/storage"
 	"gorm.io/gorm"
 )
 
@@ -32,7 +34,9 @@ func ListItem(db *gorm.DB) func(ctx *gin.Context) {
 		requester := c.MustGet(common.CurrentUser).(common.Requester)
 
     store := storage.NewSQLStore(db)
-    business := biz.NewLIstItemBiz(store, requester)
+		likeStore := usrLikeStore.NewSQLStore(db)
+		repo := repository.NewListItemRepo(store, likeStore, requester)
+    business := biz.NewLIstItemBiz(repo, requester)
 
     result, err := business.ListItem(c.Request.Context(), &queryString.Filter, &queryString.Paging)
 
