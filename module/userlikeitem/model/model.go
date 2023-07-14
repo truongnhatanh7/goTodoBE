@@ -19,6 +19,9 @@ type Like struct {
 	User      *common.SimpleUser `json:"-" gorm:"foreignKey:UserId;"`
 }
 
+func (l *Like) GetItemId() int { return l.ItemId }
+func (l *Like) GetUserId() int { return l.UserId }
+
 func (Like) TableName() string { return "user_like_items" }
 
 func ErrCannotLikeItem(err error) *common.AppError {

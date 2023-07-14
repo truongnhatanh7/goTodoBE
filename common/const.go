@@ -2,12 +2,6 @@ package common
 
 import "fmt"
 
-func Recovery() {
-	if r := recover(); r != nil {
-		fmt.Println("Recover", r)
-	}
-}
-
 const (
 	CurrentUser = "current_user"
 )
@@ -21,7 +15,18 @@ const (
 
 const (
 	PluginDBMain = "mysql"
+	PluginJWT    = "jwt"
+	PluginPubSub = "pubsub"
+
+	TopicUserLikedItem   = "TopicUserLikedItem"
+	TopicUserUnlikedItem = "TopicUserUnlikedItem"
 )
+
+func Recovery() {
+	if r := recover(); r != nil {
+		fmt.Println("Recovered:", r)
+	}
+}
 
 type TokenPayload struct {
 	UId   int    `json:"user_id"`

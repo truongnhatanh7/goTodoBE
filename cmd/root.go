@@ -18,6 +18,8 @@ import (
 	ginuserlikeitem "github.com/truongnhatanh7/goTodoBE/module/userlikeitem/transport/gin"
 	"github.com/truongnhatanh7/goTodoBE/plugin/sdkgorm"
 	"github.com/truongnhatanh7/goTodoBE/plugin/sdks3"
+	"github.com/truongnhatanh7/goTodoBE/pubsub"
+	"github.com/truongnhatanh7/goTodoBE/subscriber"
 	"gorm.io/gorm"
 )
 
@@ -26,6 +28,7 @@ func newService() goservice.Service {
 		goservice.WithName("social-todo-list"),
 		goservice.WithVersion("1.0.0"),
 		goservice.WithInitRunnable(sdkgorm.NewGormDB("main", common.PluginDBMain)),
+		goservice.WithInitRunnable(pubsub.NewPubSub(common.PluginPubSub)),
 		goservice.WithInitRunnable(sdks3.NewS3Service("s3-provider", "aws-s3")),
 	)
 
@@ -80,6 +83,8 @@ var rootCmd = &cobra.Command{
 				}
 			}
 		})
+
+		_ = subscriber.NewEngine(service).Start()
 
 		if err := service.Start(); err != nil {
 			serviceLogger.Fatalln(err)
